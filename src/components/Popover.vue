@@ -251,6 +251,10 @@ export default {
 				this.$emit('show')
 			}
 			this.$emit('update:open', true)
+			this.$_beingShowed = true
+			requestAnimationFrame(() => {
+				this.$_beingShowed = false
+			})
 		},
 
 		hide ({ event, skipDelay = false } = {}) {
@@ -579,6 +583,8 @@ export default {
 		},
 
 		$_handleGlobalClose (event, touch = false) {
+			if (this.$_beingShowed) return
+
 			this.hide({ event: event })
 
 			if (event.closePopover) {
@@ -608,9 +614,10 @@ if (typeof document !== 'undefined' && typeof window !== 'undefined') {
 	if (isIOS) {
 		document.addEventListener('touchend', handleGlobalTouchend, supportsPassive ? {
 			passive: true,
-		} : false)
+			capture: true,
+		} : true)
 	} else {
-		window.addEventListener('click', handleGlobalClick)
+		window.addEventListener('click', handleGlobalClick, true)
 	}
 }
 
@@ -623,13 +630,16 @@ function handleGlobalTouchend (event) {
 }
 
 function handleGlobalClose (event, touch = false) {
-	let popover
-	for (let i = 0; i < openPopovers.length; i++) {
-		popover = openPopovers[i]
-		const contains = popover.$refs.popover.contains(event.target)
-		if (event.closeAllPopover || (event.closePopover && contains) || (popover.autoHide && !contains)) {
-			popover.$_handleGlobalClose(event, touch)
+	// Delay so that close directive has time to set values
+	requestAnimationFrame(() => {
+		let popover
+		for (let i = 0; i < openPopovers.length; i++) {
+			popover = openPopovers[i]
+			const contains = popover.$refs.popover.contains(event.target)
+			if (event.closeAllPopover || (event.closePopover && contains) || (popover.autoHide && !contains)) {
+				popover.$_handleGlobalClose(event, touch)
+			}
 		}
-	}
+	})
 }
 </script>
