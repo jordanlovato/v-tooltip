@@ -6,7 +6,7 @@
   "module": "dist/v-tooltip.esm.js",
   "unpkg": "dist/v-tooltip.min.js",
   "scripts": {
-    "build": "npm run build:browser && npm run build:es && npm run build:umd",
+    "build": "npm i",
     "build:browser": "rollup --config build/rollup.config.browser.js",
     "build:es": "rollup --config build/rollup.config.es.js",
     "build:umd": "rollup --config build/rollup.config.umd.js",
